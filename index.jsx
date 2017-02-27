@@ -7,7 +7,7 @@ var LineChart = require('react-d3-basic').LineChart;
 
 (function() {
 
-  var chartData = require('json!../data/pitching-stats.json');
+  var chartData = require('json-loader!./data/pitching-stats.json');
 
   var width = 700,
     height = 300,
