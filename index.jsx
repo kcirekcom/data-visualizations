@@ -1,13 +1,12 @@
 'use strict';
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-var Chart = require('react-d3-core').Chart;
+var React = require('react');
+var ReactDOM = require('react-dom');
 var LineChart = require('react-d3-basic').LineChart;
 
 (function() {
 
-  var chartData = require('json-loader!./data/pitching-stats.json');
+  var chartData = require('./data/pitching-stats.json');
 
   var width = 700,
     height = 300,
@@ -25,24 +24,17 @@ var LineChart = require('react-d3-basic').LineChart;
     };
 
   ReactDOM.render(
-    <Chart
+    <LineChart
+      showXGrid={false}
+      showYGrid={false}
+      margins={margins}
       title={title}
+      data={chartData}
       width={width}
       height={height}
-      margins= {margins}
-      >
-      <LineChart
-        showXGrid= {false}
-        showYGrid= {false}
-        margins= {margins}
-        title={title}
-        data={chartData}
-        width={width}
-        height={height}
-        chartSeries={chartSeries}
-        x={x}
-      />
-    </Chart>
+      chartSeries={chartSeries}
+      x={x}
+    />
   , document.getElementById('line-user')
   );
 })();
