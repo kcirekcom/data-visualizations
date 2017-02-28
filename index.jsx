@@ -2,29 +2,29 @@
 
 var React = require('react');
 var ReactDOM = require('react-dom');
-var LineChart = require('react-d3-basic').LineChart;
+var LineTooltip = require('react-d3-tooltip').LineTooltip;
 
 (function() {
 
   var chartData = require('./data/pitching-stats.json');
 
-  var width = 700,
+  var width = 900,
     height = 300,
     margins = {left: 100, right: 100, top: 50, bottom: 50},
-    title = 'User sample',
+    title = 'Wins',
     chartSeries = [
       {
-        field: 'BMI',
-        name: 'BMI',
+        field: 'wins',
+        name: 'wins',
         color: '#ff7f0e'
       }
     ],
     x = function(d) {
-      return d.index;
+      return d.rank;
     };
 
   ReactDOM.render(
-    <LineChart
+    <LineTooltip
       showXGrid={false}
       showYGrid={false}
       margins={margins}
@@ -34,6 +34,7 @@ var LineChart = require('react-d3-basic').LineChart;
       height={height}
       chartSeries={chartSeries}
       x={x}
+      xScale='ordinal'
     />
   , document.getElementById('line-user')
   );
