@@ -5,21 +5,24 @@ import ReactDOM from 'react-dom';
 import * as d3 from 'd3';
 // var LineTooltip = require('react-d3-tooltip').LineTooltip;
 
-var pitchingData = d3.json('./data/pitching-stats.json', (data) => {
-  console.log(data[0]);
-});
+var pitchingData = require('./data/pitching-stats.json');
 
-class Chart extends React.component {
-  getInitialState() {
-    return {
-      dataset: 'pitchers'
-    };
+console.log('pitchingData', pitchingData);
+
+class Chart extends React.Component {
+  constructor() {
+    super();
   }
-  setDataset(e) {
-    this.setState({
-      dataset: e.target.value
-    });
-  }
+  // getInitialState() {
+  //   return {
+  //     dataset: 'pitchers'
+  //   };
+  // }
+  // setDataset(e) {
+  //   this.setState({
+  //     dataset: e.target.value
+  //   });
+  // }
 
   render() {
     var width = 800,
@@ -32,22 +35,44 @@ class Chart extends React.component {
     var y = d3.scaleLinear()
       .range([height, 0]);
 
-    var bar = d3.layout.bar()
-      .value(d => d[this.state.dataset])
-      .sort(null);
+    // var bar = d3.layout.bar()
+    //   .value(d => d[this.state.dataset])
+    //   .sort(null);
 
-    x.domain(pitchingData.map(function(d) {
+    var xDomain = x.domain(pitchingData.map(function(d) {
       return d.rank;
     }));
-    y.domain([0, d3.max(pitchingData, function(d) {
+
+    var yDomain = y.domain([0, d3.max(pitchingData, function(d) {
       return d.wins;
     })]);
 
-    var displayedData = bar(this.props.data);
+    // var displayedData = bar(this.props.data);
+
+    return (
+      <div>
+        <svg width={width} height={height}>
+          <g transform={'translate(0, ' + height + ')'}>
+              <path
+                fill={style}
+                x={xDomain}
+                y={yDomain}/>
+          </g>
+        </svg>
+      </div>
+    );
   }
 
-
 }
+
+const style = {
+  color: '#CCC'
+};
+
+ReactDOM.render(
+  <Chart data={pitchingData} />,
+  document.getElementById('first-set')
+);
 
 // (function() {
 //
