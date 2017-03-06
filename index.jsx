@@ -9,9 +9,9 @@ var pitchingData = require('./data/pitching-stats.json');
 
 console.log('pitchingData', pitchingData);
 
-// BAR COMPONENT
+// RECT COMPONENT
 
-class Bar extends React.Component {
+class Rect extends React.Component {
   constructor() {
     super();
   }
@@ -29,14 +29,14 @@ class Bar extends React.Component {
   }
 }
 
-Bar.propTypes = {
+Rect.propTypes = {
   path: React.PropTypes.string.isRequired,
   stroke: React.PropTypes.string,
   fill: React.PropTypes.string,
   strokeWidth: React.PropTypes.number
 };
 
-Bar.defaultProps = {
+Rect.defaultProps = {
   stroke:       'blue',
   fill:         'blue',
   strokeWidth:  3
@@ -45,13 +45,42 @@ Bar.defaultProps = {
 // DATASERIES COMPONENT
 
 class DataSeries extends React.Component {
+  render() {
+    let { pitchingData, colors, xScale, yScale, interpolationType } = this.props;
 
+    let rect = d3.svg.rect()
+      .interpolate(interpolationType)
+      .x((d) => { return xScale(d.rank); })
+      .y((d) => { return yScale(d.wins); });
+
+    let rects = pitchingData.map((series, id) => {
+      return (
+        <Line
+          path={rect(series)}
+          stroke={colors(id)}
+          key={id}
+          />
+      );
+    });
+
+    return (
+      <g>
+        <g>{rects}</g>
+      </g>
+    );
+  }
 }
 
 DataSeries.propTypes = {
-
+  colors: React.PropTypes.func,
+  data: React.PropTypes.object,
+  interpolationType: React.PropTypes.string,
+  xScale: React.PropTypes.func,
+  yScale: React.PropTypes.func
 };
 
 DataSeries.defaultProps = {
-
+  data: [],
+  interpolationType: 'cardinal',
+  colors: d3.scaleOrdinal(d3.schemeCategory10)
 };
