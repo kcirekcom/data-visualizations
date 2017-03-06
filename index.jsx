@@ -5,8 +5,8 @@ import ReactDOM from 'react-dom';
 import * as d3 from 'd3';
 // var LineTooltip = require('react-d3-tooltip').LineTooltip;
 
-var data = d3.json('./data/pitching-stats.json', (_data) => {
-  console.log(_data[0]);
+var pitchingData = d3.json('./data/pitching-stats.json', (data) => {
+  console.log(data[0]);
 });
 
 class Chart extends React.component {
@@ -20,6 +20,33 @@ class Chart extends React.component {
       dataset: e.target.value
     });
   }
+
+  render() {
+    var width = 800,
+      height = 500;
+
+    var x = d3.scaleBand()
+      .range([0, width])
+      .padding(0.25);
+
+    var y = d3.scaleLinear()
+      .range([height, 0]);
+
+    var bar = d3.layout.bar()
+      .value(d => d[this.state.dataset])
+      .sort(null);
+
+    x.domain(pitchingData.map(function(d) {
+      return d.rank;
+    }));
+    y.domain([0, d3.max(pitchingData, function(d) {
+      return d.wins;
+    })]);
+
+    var displayedData = bar(this.props.data);
+  }
+
+
 }
 
 // (function() {
