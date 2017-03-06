@@ -5,7 +5,16 @@ import ReactDOM from 'react-dom';
 import * as d3 from 'd3';
 // var LineTooltip = require('react-d3-tooltip').LineTooltip;
 
+d3.json('./data/pitching-stats.json', (data) => {
+  console.log(data[0]);
+});
 
+class Chart extends React.component {
+  constructor(data) {
+    console.log(data);
+    super();
+  }
+}
 
 // (function() {
 //
