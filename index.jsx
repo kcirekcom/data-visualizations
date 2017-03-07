@@ -6,11 +6,28 @@ import * as d3 from 'd3';
 
 // DOT COMPONENT
 
-class Dot extends React.Component {
+class Dots extends React.Component {
+  render() {
+    var _self= this;
 
+    var data = this.props.data.splice(1);
+    data.pop();
+
+    var circles = data.map(function(d, i) {
+      return (
+        <circle r='7' cx={_self.props.x(d.rank)} cy={_self.props.y(d.wins)} fill="#7dc7f4" stroke="#3f5175" strokeWidth="5px" key={i}></circle>
+      );
+    });
+
+    return (
+      <g>
+        {circles}
+      </g>
+    );
+  }
 }
 
-Dot.propTypes = {
+Dots.propTypes = {
   data: React.PropTypes.array,
   x: React.PropTypes.func,
   y: React.PropTypes.func
@@ -26,7 +43,7 @@ class LineChart extends React.Component {
 
     let { stroke, fill, strokeWidth } = this.props;
 
-    var margin = {top: 5, right: 50, bottom: 50, left: 50},
+    var margin = {top: 50, right: 50, bottom: 50, left: 50},
       width = this.props.width - (margin.left + margin.right),
       height = this.props.height - (margin.top + margin.bottom);
 
@@ -58,6 +75,7 @@ class LineChart extends React.Component {
         <svg id={this.props.chartId} width={this.props.width} height={this.props.height}>
           <g transform={transform}>
             <path strokeLinecap='round' stroke={stroke} strokeWidth={strokeWidth} fill={fill} d={line(data)}/>
+            <Dots data={data} x={x} y={y}/>
           </g>
         </svg>
       </div>
