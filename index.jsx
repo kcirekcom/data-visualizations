@@ -68,6 +68,25 @@ class LineChart extends React.Component {
         return y(d.wins);
       });
 
+    // Axes and grid
+    var yAxis = d3.axisLeft()
+      .scale(y)
+      .ticks(5);
+
+    var xAxis = d3.axisBottom()
+      .scale(x)
+      .tickValues(data.map(function(d,i){
+        if(i>0)
+          return d.rank;
+      }).splice(1))
+      .ticks(4);
+
+    var yGrid = d3.axisLeft()
+      .scale(y)
+      .ticks(5)
+      .tickSize(-width, 0, 0)
+      .tickFormat('');
+
     var transform ='translate(' + margin.left + ',' + margin.top + ')';
 
     return (
@@ -96,7 +115,7 @@ LineChart.defaultProps = {
   width: 800,
   height: 500,
   chartId: 'react-chart',
-  stroke: 'blue',
+  stroke: 'orange',
   fill: 'none',
   strokeWidth: 3
 };
