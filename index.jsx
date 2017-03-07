@@ -8,9 +8,9 @@ var pitchingData = require('./data/pitching-stats.json');
 
 console.log('pitchingData', pitchingData);
 
-// RECT COMPONENT
+// LINE COMPONENT
 
-class Rect extends React.Component {
+class Line extends React.Component {
   render() {
     let { path, stroke, fill, strokeWidth } = this.props;
     return (
@@ -24,16 +24,15 @@ class Rect extends React.Component {
   }
 }
 
-Rect.propTypes = {
+Line.propTypes = {
   path: React.PropTypes.string.isRequired,
   stroke: React.PropTypes.string,
-  fill: React.PropTypes.string,
   strokeWidth: React.PropTypes.number
 };
 
-Rect.defaultProps = {
+Line.defaultProps = {
   stroke: 'blue',
-  fill: 'blue',
+  fill: 'none',
   strokeWidth: 3,
 };
 
@@ -43,15 +42,15 @@ class DataSeries extends React.Component {
   render() {
     let { data, colors, xScale, yScale, interpolationType } = this.props;
 
-    let rect = d3.line()
-      .x((d) => { return xScale(d.rank); })
-      .y((d) => { return yScale(d.wins); });
+    let line = d3.line()
+      .x((d) => { console.log('XSCALE', xScale(d.rank)); return xScale(d.rank); })
+      .y((d) => { console.log(d); return yScale(d.wins); });
 
-    let rects = data.map((series, id) => {
+    let lines = data.map((series, id) => {
       return (
-        <Rect
-          path={rect(series)}
-          fill={colors(id)}
+        <Line
+          path={line(series)}
+          stroke={colors(id)}
           key={id}
           />
       );
@@ -59,7 +58,7 @@ class DataSeries extends React.Component {
 
     return (
       <g>
-        <g>{rects}</g>
+        <g>{lines}</g>
       </g>
     );
   }
@@ -69,29 +68,29 @@ DataSeries.propTypes = {
   colors: React.PropTypes.func,
   data: React.PropTypes.array,
   interpolationType: React.PropTypes.string,
-  xScale: React.PropTypes.func,
-  yScale: React.PropTypes.func
 };
 
 DataSeries.defaultProps = {
   data: [],
   interpolationType: 'cardinal',
-  colors: d3.scaleOrdinal(d3.schemeCategory10)
+  colors: d3.scaleOrdinal(d3.schemeCategory10),
+  xScale: React.PropTypes.func,
+  yScale: React.PropTypes.func
 };
 
-// BARCHART COMPONENT
+// LINECHART COMPONENT
 
-class BarChart extends React.Component {
+class LineChart extends React.Component {
   render() {
     let { width, height, data } = this.props;
 
-    let xScale = d3.scaleBand()
+    let xScale = d3.scaleOrdinal()
                    .domain(d3.range(data.length))
                    .range([0, width]);
 
     let yScale = d3.scaleLinear()
-                   .range([height, 0])
-                   .domain([0, d3.max(data, (d) => d.wins)]);
+                   .range([0, height])
+                   .domain([0, d3.max(data)]);
 
     return (
       <svg width={width} height={height}>
@@ -107,19 +106,19 @@ class BarChart extends React.Component {
   }
 }
 
-BarChart.propTypes = {
+LineChart.propTypes = {
   width: React.PropTypes.number,
   height: React.PropTypes.number,
   data: React.PropTypes.array.isRequired
 };
 
-BarChart.defaultProps = {
-  width:  800,
+LineChart.defaultProps = {
+  width: 800,
   height: 500
 };
 
 ReactDOM.render(
-  <BarChart
+  <LineChart
     data={pitchingData}
     width={800}
     height={500}
