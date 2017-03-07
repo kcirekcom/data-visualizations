@@ -13,8 +13,11 @@ class LineChart extends React.Component {
 
     console.log('data', data);
 
-    let { width, height, stroke, fill, strokeWidth } = this.props;
+    let { stroke, fill, strokeWidth } = this.props;
 
+    var margin = {top: 5, right: 50, bottom: 20, left: 50},
+      width = this.props.width - (margin.left + margin.right),
+      height = this.props.height - (margin.top + margin.bottom);
 
     var x = d3.scaleLinear()
       .domain(d3.extent(data, function (d) {
@@ -36,11 +39,13 @@ class LineChart extends React.Component {
         return y(d.wins);
       });
 
+    var transform ='translate(' + margin.left + ',' + margin.top + ')';
+
     return (
       <div>
-        <svg id={this.props.chartId} width={width} height={height}>
-          <g>
-            <path stroke={stroke} strokeWidth={strokeWidth} fill={fill} d={line(data)}/>
+        <svg id={this.props.chartId} width={this.props.width} height={this.props.height}>
+          <g transform={transform}>
+            <path strokeLinecap='round' stroke={stroke} strokeWidth={strokeWidth} fill={fill} d={line(data)}/>
           </g>
         </svg>
       </div>
