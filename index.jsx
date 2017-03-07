@@ -15,7 +15,7 @@ class LineChart extends React.Component {
 
     let { stroke, fill, strokeWidth } = this.props;
 
-    var margin = {top: 5, right: 50, bottom: 20, left: 50},
+    var margin = {top: 5, right: 50, bottom: 50, left: 50},
       width = this.props.width - (margin.left + margin.right),
       height = this.props.height - (margin.top + margin.bottom);
 
@@ -32,6 +32,7 @@ class LineChart extends React.Component {
       .range([height, 0]);
 
     var line = d3.line()
+      .curve(d3.curveCardinal)
       .x(function (d) {
         return x(d.rank);
       })
