@@ -4,6 +4,17 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import * as d3 from 'd3';
 
+// DOT COMPONENT
+
+class Dot extends React.Component {
+
+}
+
+Dot.propTypes = {
+  data: React.PropTypes.array,
+  x: React.PropTypes.func,
+  y: React.PropTypes.func
+};
 
 // LINECHART COMPONENT
 
