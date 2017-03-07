@@ -4,18 +4,16 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import * as d3 from 'd3';
 
-// DOT COMPONENT
-
+// DOTS COMPONENT
 class Dots extends React.Component {
   render() {
     var _self= this;
 
-    var data = this.props.data.splice(1);
-    data.pop();
+    var data = this.props.data;
 
     var circles = data.map(function(d, i) {
       return (
-        <circle r='7' cx={_self.props.x(d.rank)} cy={_self.props.y(d.wins)} fill="#7dc7f4" stroke="#3f5175" strokeWidth="5px" key={i}></circle>
+        <circle r='7' cx={_self.props.x(d.rank)} cy={_self.props.y(d.ERA)} fill='#7dc7f4' stroke='#3f5175' strokeWidth='5px' key={i}></circle>
       );
     });
 
@@ -34,7 +32,6 @@ Dots.propTypes = {
 };
 
 // LINECHART COMPONENT
-
 class LineChart extends React.Component {
   render() {
     var data = require('./data/pitching-stats.json');
@@ -55,7 +52,7 @@ class LineChart extends React.Component {
 
     var y = d3.scaleLinear()
       .domain([0,d3.max(data,function(d){
-        return d.wins;
+        return d.ERA;
       })])
       .range([height, 0]);
 
@@ -65,7 +62,7 @@ class LineChart extends React.Component {
         return x(d.rank);
       })
       .y(function (d) {
-        return y(d.wins);
+        return y(d.ERA);
       });
 
     // Axes and grid
