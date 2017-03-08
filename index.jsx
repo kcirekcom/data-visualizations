@@ -1,5 +1,6 @@
 'use strict';
 
+// importing libraries
 import React from 'react';
 import ReactDOM from 'react-dom';
 import * as d3 from 'd3';
@@ -8,15 +9,23 @@ import * as d3 from 'd3';
 class Dots extends React.Component {
   render() {
 
-    var _self = this;
+    var dots = this;
 
     // passing data in through props
-    var data = this.props.data;
+    // setting up other props
+    let { data, r, stroke, fill, strokeWidth } = this.props;
 
     // creating dots here after filtering data and extracting points
     var circles = data.map(function(d, i) {
       return (
-        <circle r='5' cx={_self.props.x(d.rank)} cy={_self.props.y(d.ERA)} fill='#7dc7f4' stroke='#3f5175' strokeWidth='3px' key={i} onMouseOver={_self.props.showToolTip} onMouseOut={_self.props.hideToolTip} data-key={d.name} data-value={d.ERA}></circle>
+        <circle
+          r={r}
+          cx={dots.props.x(d.rank)} cy={dots.props.y(d.ERA)}
+          fill={fill}
+          stroke={stroke} strokeWidth={strokeWidth}
+          key={i}
+          onMouseOver={dots.props.showToolTip} onMouseOut={dots.props.hideToolTip}
+          data-key={d.name} data-value={d.ERA}></circle>
       );
     });
 
@@ -31,7 +40,18 @@ class Dots extends React.Component {
 Dots.propTypes = {
   data: React.PropTypes.array,
   x: React.PropTypes.func,
-  y: React.PropTypes.func
+  y: React.PropTypes.func,
+  r: React.PropTypes.number,
+  stroke: React.PropTypes.string,
+  fill: React.PropTypes.string,
+  strokeWidth: React.PropTypes.number
+};
+
+Dots.defaultProps = {
+  r: 5,
+  stroke: '#3f5175',
+  fill: '#7dc7f4',
+  strokeWidth: 3
 };
 
 // AXIS COMPONENT
@@ -103,6 +123,7 @@ class LineChart extends React.Component {
     var data = require('./data/pitching-stats.json');
     console.log('data', data);
 
+    // setting up props
     let { stroke, fill, strokeWidth } = this.props;
 
     // setting margins, width and height of svg
@@ -158,8 +179,13 @@ class LineChart extends React.Component {
         <svg id={this.props.chartId} width={this.props.width} height={this.props.height}>
           <g transform={transform}>
             <Grid height={height} grid={yGrid} gridType="y"/>
-            <path strokeLinecap='round' stroke={stroke} strokeWidth={strokeWidth} fill={fill} d={line(data)}/>
-            <Dots data={data} x={x} y={y} showToolTip={this.showToolTip} hideToolTip={this.hideToolTip}/>
+            <path
+              strokeLinecap='round' stroke={stroke} strokeWidth={strokeWidth} fill={fill}
+              d={line(data)}/>
+            <Dots
+              data={data}
+              x={x} y={y}
+              showToolTip={this.showToolTip} hideToolTip={this.hideToolTip}/>
             <Axis height={height} axis={yAxis} axisType="y" />
             <Axis height={height} axis={xAxis} axisType="x"/>
           </g>
