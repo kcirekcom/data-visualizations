@@ -7,10 +7,13 @@ import * as d3 from 'd3';
 // DOTS COMPONENT
 class Dots extends React.Component {
   render() {
+
     var _self= this;
 
+    // passing data in through props
     var data = this.props.data;
 
+    // creating dots here after filtering data and extracting points
     var circles = data.map(function(d, i) {
       return (
         <circle r='7' cx={_self.props.x(d.rank)} cy={_self.props.y(d.ERA)} fill='#7dc7f4' stroke='#3f5175' strokeWidth='5px' key={i}></circle>
@@ -31,15 +34,28 @@ Dots.propTypes = {
   y: React.PropTypes.func
 };
 
+// AXIS COMPONENT
+class Axis extends React.Component {
+
+}
+
+Axis.propTypes = {
+  height: React.PropTypes.number,
+  axis: React.PropTypes.func,
+  axisType: React.PropTypes.oneOf(['x', 'y'])
+};
+
 // LINECHART COMPONENT
 class LineChart extends React.Component {
   render() {
-    var data = require('./data/pitching-stats.json');
 
+    // loading in data here
+    var data = require('./data/pitching-stats.json');
     console.log('data', data);
 
     let { stroke, fill, strokeWidth } = this.props;
 
+    // margins, width and height of svg
     var margin = {top: 50, right: 50, bottom: 50, left: 50},
       width = this.props.width - (margin.left + margin.right),
       height = this.props.height - (margin.top + margin.bottom);
@@ -56,6 +72,7 @@ class LineChart extends React.Component {
       })])
       .range([height, 0]);
 
+    // drawing line here
     var line = d3.line()
       .curve(d3.curveCardinal)
       .x(function (d) {
