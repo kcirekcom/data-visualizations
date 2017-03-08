@@ -67,7 +67,26 @@ Axis.propTypes = {
 // GRID COMPONENT
 
 class Grid extends React.Component {
+  componentDidUpdate() {
+    this.renderGrid();
+  }
+  componentDidMount() {
+    this.renderGrid();
+  }
 
+  renderGrid() {
+    var node = ReactDOM.findDOMNode(this);
+    d3.select(node).call(this.props.axis);
+  }
+
+  render() {
+    var translate = 'translate(0,'+(this.props.height)+')';
+
+    return (
+      <g transform={this.props.gridType=='x'?translate:''}>
+      </g>
+    );
+  }
 }
 
 Grid.propTypes = {
