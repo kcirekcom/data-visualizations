@@ -8,7 +8,7 @@ import * as d3 from 'd3';
 class Dots extends React.Component {
   render() {
 
-    var _self= this;
+    var _self = this;
 
     // passing data in through props
     var data = this.props.data;
