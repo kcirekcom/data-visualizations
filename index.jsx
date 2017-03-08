@@ -36,7 +36,26 @@ Dots.propTypes = {
 
 // AXIS COMPONENT
 class Axis extends React.Component {
+  componentDidUpdate() {
+    this.renderAxis();
+  }
+  componentDidMount() {
+    this.renderAxis();
+  }
 
+  renderAxis() {
+    var node = ReactDOM.findDOMNode(this);
+    d3.select(node).call(this.props.axis);
+  }
+
+  render() {
+    var translate = 'translate(0,'+(this.props.height)+')';
+
+    return (
+      <g transform={this.props.axisType=='x'?translate:''}>
+      </g>
+    );
+  }
 }
 
 Axis.propTypes = {
@@ -55,7 +74,7 @@ class LineChart extends React.Component {
 
     let { stroke, fill, strokeWidth } = this.props;
 
-    // margins, width and height of svg
+    // setting margins, width and height of svg
     var margin = {top: 50, right: 50, bottom: 50, left: 50},
       width = this.props.width - (margin.left + margin.right),
       height = this.props.height - (margin.top + margin.bottom);
@@ -85,19 +104,19 @@ class LineChart extends React.Component {
     // Axes and grid
     var yAxis = d3.axisLeft()
       .scale(y)
-      .ticks(5);
+      .ticks(10);
 
     var xAxis = d3.axisBottom()
       .scale(x)
       .tickValues(data.map(function(d,i){
-        if(i>0)
+        if(i > 0)
           return d.rank;
       }).splice(1))
       .ticks(4);
 
     var yGrid = d3.axisLeft()
       .scale(y)
-      .ticks(5)
+      .ticks(10)
       .tickSize(-width, 0, 0)
       .tickFormat('');
 
@@ -109,6 +128,8 @@ class LineChart extends React.Component {
           <g transform={transform}>
             <path strokeLinecap='round' stroke={stroke} strokeWidth={strokeWidth} fill={fill} d={line(data)}/>
             <Dots data={data} x={x} y={y}/>
+            <Axis height={height} axis={yAxis} axisType="y" />
+            <Axis height={height} axis={xAxis} axisType="x"/>
           </g>
         </svg>
       </div>

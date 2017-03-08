@@ -1,2 +1,2 @@
 # data-visualizations
-Data visualization examples using both react and d3.
+Data visualization examples using react and d3 v4.
