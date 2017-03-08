@@ -64,6 +64,18 @@ Axis.propTypes = {
   axisType: React.PropTypes.oneOf(['x', 'y'])
 };
 
+// GRID COMPONENT
+
+class Grid extends React.Component {
+
+}
+
+Grid.propTypes = {
+  height: React.PropTypes.number,
+  grid: React.PropTypes.func,
+  gridType: React.PropTypes.oneOf(['x', 'y'])
+};
+
 // LINECHART COMPONENT
 class LineChart extends React.Component {
   render() {
