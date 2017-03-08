@@ -16,7 +16,7 @@ class Dots extends React.Component {
     // creating dots here after filtering data and extracting points
     var circles = data.map(function(d, i) {
       return (
-        <circle r='7' cx={_self.props.x(d.rank)} cy={_self.props.y(d.ERA)} fill='#7dc7f4' stroke='#3f5175' strokeWidth='5px' key={i}></circle>
+        <circle r='5' cx={_self.props.x(d.rank)} cy={_self.props.y(d.ERA)} fill='#7dc7f4' stroke='#3f5175' strokeWidth='3px' key={i} onMouseOver={_self.props.showToolTip} onMouseOut={_self.props.hideToolTip} data-key={d.name} data-value={d.ERA}></circle>
       );
     });
 
@@ -76,7 +76,7 @@ class Grid extends React.Component {
 
   renderGrid() {
     var node = ReactDOM.findDOMNode(this);
-    d3.select(node).call(this.props.axis);
+    d3.select(node).call(this.props.grid);
   }
 
   render() {
@@ -157,8 +157,9 @@ class LineChart extends React.Component {
       <div>
         <svg id={this.props.chartId} width={this.props.width} height={this.props.height}>
           <g transform={transform}>
+            <Grid height={height} grid={yGrid} gridType="y"/>
             <path strokeLinecap='round' stroke={stroke} strokeWidth={strokeWidth} fill={fill} d={line(data)}/>
-            <Dots data={data} x={x} y={y}/>
+            <Dots data={data} x={x} y={y} showToolTip={this.showToolTip} hideToolTip={this.hideToolTip}/>
             <Axis height={height} axis={yAxis} axisType="y" />
             <Axis height={height} axis={xAxis} axisType="x"/>
           </g>
