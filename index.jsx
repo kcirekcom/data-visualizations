@@ -4,104 +4,167 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import * as d3 from 'd3';
 
-var pitchingData = require('./data/pitching-stats.json');
-
-console.log('pitchingData', pitchingData);
-
-// LINE COMPONENT
-
-class Line extends React.Component {
+// DOTS COMPONENT
+class Dots extends React.Component {
   render() {
-    let { path, stroke, fill, strokeWidth } = this.props;
-    return (
-      <path
-        d={path}
-        fill={fill}
-        stroke={stroke}
-        strokeWidth={strokeWidth}
-        />
-    );
-  }
-}
 
-Line.propTypes = {
-  path: React.PropTypes.string.isRequired,
-  stroke: React.PropTypes.string,
-  strokeWidth: React.PropTypes.number
-};
+    var _self = this;
 
-Line.defaultProps = {
-  stroke: 'blue',
-  fill: 'none',
-  strokeWidth: 3,
-};
+    // passing data in through props
+    var data = this.props.data;
 
-// DATASERIES COMPONENT
-
-class DataSeries extends React.Component {
-  render() {
-    let { data, colors, xScale, yScale, interpolationType } = this.props;
-
-    let line = d3.line()
-      .x((d) => { console.log('XSCALE', xScale(d.rank)); return xScale(d.rank); })
-      .y((d) => { console.log(d); return yScale(d.wins); });
-
-    let lines = data.map((series, id) => {
+    // creating dots here after filtering data and extracting points
+    var circles = data.map(function(d, i) {
       return (
-        <Line
-          path={line(series)}
-          stroke={colors(id)}
-          key={id}
-          />
+        <circle r='5' cx={_self.props.x(d.rank)} cy={_self.props.y(d.ERA)} fill='#7dc7f4' stroke='#3f5175' strokeWidth='3px' key={i} onMouseOver={_self.props.showToolTip} onMouseOut={_self.props.hideToolTip} data-key={d.name} data-value={d.ERA}></circle>
       );
     });
 
     return (
       <g>
-        <g>{lines}</g>
+        {circles}
       </g>
     );
   }
 }
 
-DataSeries.propTypes = {
-  colors: React.PropTypes.func,
+Dots.propTypes = {
   data: React.PropTypes.array,
-  interpolationType: React.PropTypes.string,
+  x: React.PropTypes.func,
+  y: React.PropTypes.func
 };
 
-DataSeries.defaultProps = {
-  data: [],
-  interpolationType: 'cardinal',
-  colors: d3.scaleOrdinal(d3.schemeCategory10),
-  xScale: React.PropTypes.func,
-  yScale: React.PropTypes.func
+// AXIS COMPONENT
+class Axis extends React.Component {
+  componentDidUpdate() {
+    this.renderAxis();
+  }
+  componentDidMount() {
+    this.renderAxis();
+  }
+
+  renderAxis() {
+    var node = ReactDOM.findDOMNode(this);
+    d3.select(node).call(this.props.axis);
+  }
+
+  render() {
+    var translate = 'translate(0,'+(this.props.height)+')';
+
+    return (
+      <g transform={this.props.axisType=='x'?translate:''}>
+      </g>
+    );
+  }
+}
+
+Axis.propTypes = {
+  height: React.PropTypes.number,
+  axis: React.PropTypes.func,
+  axisType: React.PropTypes.oneOf(['x', 'y'])
+};
+
+// GRID COMPONENT
+
+class Grid extends React.Component {
+  componentDidUpdate() {
+    this.renderGrid();
+  }
+  componentDidMount() {
+    this.renderGrid();
+  }
+
+  renderGrid() {
+    var node = ReactDOM.findDOMNode(this);
+    d3.select(node).call(this.props.grid);
+  }
+
+  render() {
+    var translate = 'translate(0,'+(this.props.height)+')';
+
+    return (
+      <g transform={this.props.gridType=='x'?translate:''}>
+      </g>
+    );
+  }
+}
+
+Grid.propTypes = {
+  height: React.PropTypes.number,
+  grid: React.PropTypes.func,
+  gridType: React.PropTypes.oneOf(['x', 'y'])
 };
 
 // LINECHART COMPONENT
-
 class LineChart extends React.Component {
   render() {
-    let { width, height, data } = this.props;
 
-    let xScale = d3.scaleOrdinal()
-                   .domain(d3.range(data.length))
-                   .range([0, width]);
+    // loading in data here
+    var data = require('./data/pitching-stats.json');
+    console.log('data', data);
 
-    let yScale = d3.scaleLinear()
-                   .range([0, height])
-                   .domain([0, d3.max(data)]);
+    let { stroke, fill, strokeWidth } = this.props;
+
+    // setting margins, width and height of svg
+    var margin = {top: 50, right: 50, bottom: 50, left: 50},
+      width = this.props.width - (margin.left + margin.right),
+      height = this.props.height - (margin.top + margin.bottom);
+
+    var x = d3.scaleLinear()
+      .domain(d3.extent(data, function (d) {
+        return d.rank;
+      }))
+      .range([0, width]);
+
+    var y = d3.scaleLinear()
+      .domain([0,d3.max(data,function(d){
+        return d.ERA;
+      })])
+      .range([height, 0]);
+
+    // drawing line here
+    var line = d3.line()
+      .curve(d3.curveCardinal)
+      .x(function (d) {
+        return x(d.rank);
+      })
+      .y(function (d) {
+        return y(d.ERA);
+      });
+
+    // Axes and grid
+    var yAxis = d3.axisLeft()
+      .scale(y)
+      .ticks(10);
+
+    var xAxis = d3.axisBottom()
+      .scale(x)
+      .tickValues(data.map(function(d,i){
+        if(i > 0)
+          return d.rank;
+      }).splice(1))
+      .ticks(4);
+
+    var yGrid = d3.axisLeft()
+      .scale(y)
+      .ticks(10)
+      .tickSize(-width, 0, 0)
+      .tickFormat('');
+
+    var transform ='translate(' + margin.left + ',' + margin.top + ')';
 
     return (
-      <svg width={width} height={height}>
-          <DataSeries
-            xScale={xScale}
-            yScale={yScale}
-            data={pitchingData}
-            width={width}
-            height={height}
-            />
-      </svg>
+      <div>
+        <svg id={this.props.chartId} width={this.props.width} height={this.props.height}>
+          <g transform={transform}>
+            <Grid height={height} grid={yGrid} gridType="y"/>
+            <path strokeLinecap='round' stroke={stroke} strokeWidth={strokeWidth} fill={fill} d={line(data)}/>
+            <Dots data={data} x={x} y={y} showToolTip={this.showToolTip} hideToolTip={this.hideToolTip}/>
+            <Axis height={height} axis={yAxis} axisType="y" />
+            <Axis height={height} axis={xAxis} axisType="x"/>
+          </g>
+        </svg>
+      </div>
     );
   }
 }
@@ -109,19 +172,22 @@ class LineChart extends React.Component {
 LineChart.propTypes = {
   width: React.PropTypes.number,
   height: React.PropTypes.number,
-  data: React.PropTypes.array.isRequired
+  chartId: React.PropTypes.string,
+  stroke: React.PropTypes.string,
+  fill: React.PropTypes.string,
+  strokeWidth: React.PropTypes.number
 };
 
 LineChart.defaultProps = {
   width: 800,
-  height: 500
+  height: 500,
+  chartId: 'react-chart',
+  stroke: 'orange',
+  fill: 'none',
+  strokeWidth: 3
 };
 
 ReactDOM.render(
-  <LineChart
-    data={pitchingData}
-    width={800}
-    height={500}
-    />,
+  <LineChart/>,
   document.getElementById('first-set')
 );
