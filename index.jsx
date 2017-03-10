@@ -1,5 +1,6 @@
 'use strict';
 
+// importing libraries
 import React from 'react';
 import ReactDOM from 'react-dom';
 import * as d3 from 'd3';
@@ -8,15 +9,23 @@ import * as d3 from 'd3';
 class Dots extends React.Component {
   render() {
 
-    var _self = this;
+    var dots = this;
 
     // passing data in through props
-    var data = this.props.data;
+    // setting up other props
+    let { data, r, stroke, fill, strokeWidth } = this.props;
 
     // creating dots here after filtering data and extracting points
     var circles = data.map(function(d, i) {
       return (
-        <circle r='5' cx={_self.props.x(d.rank)} cy={_self.props.y(d.ERA)} fill='#7dc7f4' stroke='#3f5175' strokeWidth='3px' key={i} onMouseOver={_self.props.showToolTip} onMouseOut={_self.props.hideToolTip} data-key={d.name} data-value={d.ERA}></circle>
+        <circle
+          r={r}
+          cx={dots.props.x(d.rank)} cy={dots.props.y(d.ERA)}
+          fill={fill}
+          stroke={stroke} strokeWidth={strokeWidth}
+          key={i}
+          onMouseOver={dots.props.showToolTip} onMouseOut={dots.props.hideToolTip}
+          data-key={d.name} data-value={d.ERA}></circle>
       );
     });
 
@@ -31,7 +40,66 @@ class Dots extends React.Component {
 Dots.propTypes = {
   data: React.PropTypes.array,
   x: React.PropTypes.func,
-  y: React.PropTypes.func
+  y: React.PropTypes.func,
+  r: React.PropTypes.number,
+  stroke: React.PropTypes.string,
+  fill: React.PropTypes.string,
+  strokeWidth: React.PropTypes.number
+};
+
+Dots.defaultProps = {
+  r: 5,
+  stroke: '#3f5175',
+  fill: '#7dc7f4',
+  strokeWidth: 3
+};
+
+// TOOLTIP COMPONENT
+class ToolTip extends React.Component {
+  render () {
+    var visibility ='hidden';
+    var transform ='';
+    var x = 0;
+    var y = 0;
+    var width = 150, height = 70;
+    var transformText='translate('+width/2+','+(height/2-5)+')';
+    var transformArrow='';
+
+    if(this.props.tooltip.display==true){
+      var position = this.props.tooltip.pos;
+
+      x = position.x;
+      y = position.y;
+      visibility ='visible';
+
+      if (y > height){
+        transform ='translate(' + (x-width/2) + ',' + (y-height-20) + ')';
+        transformArrow ='translate('+(width/2-20)+','+(height-2)+')';
+      } else if (y < height){
+        transform ='translate(' + (x-width/2) + ',' + (Math.round(y)+20) + ')';
+        transformArrow ='translate('+(width/2-20)+','+0+') rotate(180,20,0)';
+      }
+
+    } else {
+      visibility ='hidden';
+    }
+
+    return (
+        <g transform={transform}>
+            <rect is width={width} height={height} rx="5" ry="5" visibility={visibility} fill="#6391da" opacity=".9"/>
+            <polygon is points="10,0  30,0  20,10" transform={transformArrow}
+                     fill="#6391da" opacity=".9" visibility={visibility}/>
+            <text is visibility={visibility} transform={transformText}>
+                <tspan is x="0" text-anchor="middle" font-size="15px" fill="#ffffff">{this.props.tooltip.data.key}</tspan>
+                <tspan is x="0" text-anchor="middle" dy="25" font-size="20px" fill="#a9f3ff">{this.props.tooltip.data.value+' ERA'}</tspan>
+            </text>
+        </g>
+    );
+  }
+}
+
+ToolTip.propTypes = {
+  tooltip: React.PropTypes.object
 };
 
 // AXIS COMPONENT
@@ -97,12 +165,42 @@ Grid.propTypes = {
 
 // LINECHART COMPONENT
 class LineChart extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      tooltip:{ display:false,data:{key:'',value:''}},
+      width:this.props.width
+    };
+  }
+
+  showToolTip(e) {
+    e.target.setAttribute('fill', '#FFFFFF');
+    this.setState({tooltip:{
+      display:true,
+      data: {
+        key:e.target.getAttribute('data-key'),
+        value:e.target.getAttribute('data-value')
+      },
+      pos:{
+        x:e.target.getAttribute('cx'),
+        y:e.target.getAttribute('cy')
+      }
+    }});
+  }
+
+  hideToolTip(e) {
+    e.target.setAttribute('fill', '#7dc7f4');
+    this.setState({tooltip:{ display:false,data:{key:'',value:''}}});
+  }
+
   render() {
 
     // loading in data here
     var data = require('./data/pitching-stats.json');
     console.log('data', data);
 
+    // setting up props
     let { stroke, fill, strokeWidth } = this.props;
 
     // setting margins, width and height of svg
@@ -158,8 +256,13 @@ class LineChart extends React.Component {
         <svg id={this.props.chartId} width={this.props.width} height={this.props.height}>
           <g transform={transform}>
             <Grid height={height} grid={yGrid} gridType="y"/>
-            <path strokeLinecap='round' stroke={stroke} strokeWidth={strokeWidth} fill={fill} d={line(data)}/>
-            <Dots data={data} x={x} y={y} showToolTip={this.showToolTip} hideToolTip={this.hideToolTip}/>
+            <path
+              strokeLinecap='round' stroke={stroke} strokeWidth={strokeWidth} fill={fill}
+              d={line(data)}/>
+            <Dots
+              data={data}
+              x={x} y={y}
+              showToolTip={this.showToolTip} hideToolTip={this.hideToolTip}/>
             <Axis height={height} axis={yAxis} axisType="y" />
             <Axis height={height} axis={xAxis} axisType="x"/>
           </g>
